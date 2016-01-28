@@ -5,7 +5,9 @@ using System.Linq;
 using NHExample.Domain;
 using NHibernate;
 using NHibernate.Cfg;
+using NHibernate.Linq;
 using NHibernate.Tool.hbm2ddl;
+using NHibernate.Util;
 
 namespace NHExample
 {
@@ -32,21 +34,33 @@ namespace NHExample
 
             sessionFactory.DoOnSession(session =>
             {
-                var product = CreateProduct();
-
-                // And save it to the database
-                session.Save(product);
+                Enumerable.Range(1, 10).ForEach(index => session.Save(CreateProduct(index)));
             });
 
+            DumpAllProcducts(sessionFactory);
+
+            sessionFactory.DoOnSession(session =>
+            {
+                var allProducts = AllProducts(session);
+                allProducts.Single(product => product.Name.EndsWith("5")).Name += "_";
+            });
+
+            DumpAllProcducts(sessionFactory);
+
+            // Don't close the application right away, so we can read
+            // the output.
+            Console.ReadLine();
+        }
+
+        private static void DumpAllProcducts(ISessionFactory sessionFactory)
+        {
+            Console.WriteLine();
             sessionFactory.DoOnSession(session =>
             {
                 var allProducts = AllProducts(session);
                 allProducts.ForEach(p => Console.WriteLine(p.Name));
             });
-
-            // Don't close the application right away, so we can read
-            // the output.
-            Console.ReadLine();
+            Console.WriteLine();
         }
 
         private static void CreateDataBase(Configuration cfg)
@@ -62,11 +76,11 @@ namespace NHExample
             return query.List<Product>().ToList();
         }
 
-        private static Product CreateProduct()
+        private static Product CreateProduct(int index)
         {
             return new Product
             {
-                Name = "Some C# Book",
+                Name = "Some C# Book Volume " + index,
                 Price = 500,
                 Category = "Books"
             };
