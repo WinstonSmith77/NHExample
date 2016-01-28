@@ -18,8 +18,13 @@ namespace NHExample
         {
             using (var session = sessionFactory.OpenSession())
             {
-                doit(session);
-                session.Flush();
+                session.FlushMode = FlushMode.Commit;
+                using (var transaction = session.Transaction)
+                {
+                    transaction.Begin();
+                    doit(session);
+                    transaction.Commit();
+                }
             }
         }
 
