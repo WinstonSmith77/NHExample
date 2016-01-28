@@ -1,7 +1,10 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using FluentNHibernate.Cfg;
+using FluentNHibernate.Cfg.Db;
 using NHExample.Domain;
 using NHibernate;
 using NHibernate.Cfg;
@@ -19,9 +22,8 @@ namespace NHExample
             using (var session = sessionFactory.OpenSession())
             {
                 session.FlushMode = FlushMode.Commit;
-                using (var transaction = session.Transaction)
+                using (var transaction = session.BeginTransaction())
                 {
-                    transaction.Begin();
                     doit(session);
                     transaction.Commit();
                 }
@@ -30,12 +32,7 @@ namespace NHExample
 
         static void Main()
         {
-            var cfg = InitNHibernate();
-
-            // Get ourselves an NHibernate Session
-            var sessionFactory = cfg.BuildSessionFactory();
-
-            CreateDataBase(cfg);
+            var sessionFactory = Init();
 
             sessionFactory.DoOnSession(session =>
             {
@@ -57,6 +54,29 @@ namespace NHExample
             Console.ReadLine();
         }
 
+        private static ISessionFactory Init()
+        {
+            return Fluently.Configure()
+            .Database(SQLiteConfiguration.Standard.UsingFile("firstProject.db").ShowSql())
+            .Mappings(m => m.FluentMappings.AddFromAssemblyOf<Product>())
+            .ExposeConfiguration(BuildSchema)
+            .BuildSessionFactory();
+        }
+
+        private static void BuildSchema(Configuration config)
+        {
+            const string DbFile = "nhibernate.db";
+            // delete the existing db on each run
+            if (File.Exists(DbFile))
+            {
+                File.Delete(DbFile);
+            }
+
+            // this NHibernate tool takes a configuration (with mapping info in)
+            // and exports a database schema from it
+            new SchemaExport(config).Create(false, true);
+        }
+
         private static void DumpAllProcducts(ISessionFactory sessionFactory)
         {
             Console.WriteLine();
@@ -66,13 +86,6 @@ namespace NHExample
                 allProducts.ForEach(p => Console.WriteLine(p.Name));
             });
             Console.WriteLine();
-        }
-
-        private static void CreateDataBase(Configuration cfg)
-        {
-            // Create the database schema
-            File.Delete("nhibernte.db");
-            new SchemaExport(cfg).Create(true, true);
         }
 
         private static List<Product> AllProducts(ISession session)
@@ -89,15 +102,6 @@ namespace NHExample
                 Price = 500,
                 Category = "Books"
             };
-        }
-
-        private static Configuration InitNHibernate()
-        {
-            // Initialize NHibernate
-            var cfg = new Configuration();
-            cfg.Configure();
-            cfg.AddAssembly(typeof(Product).Assembly);
-            return cfg;
         }
     }
 }
