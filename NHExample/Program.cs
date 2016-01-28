@@ -6,15 +6,12 @@ using NHibernate.Tool.hbm2ddl;
 
 namespace NHExample
 {
-    class Program
+    static class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
 
-            // Initialize NHibernate
-            var cfg = new Configuration();
-            cfg.Configure();
-            cfg.AddAssembly(typeof(Domain.Product).Assembly);
+            var cfg = InitNHibernate();
 
             // Get ourselves an NHibernate Session
             var sessions = cfg.BuildSessionFactory();
@@ -48,6 +45,15 @@ namespace NHExample
             // Don't close the application right away, so we can read
             // the output.
             Console.ReadLine();
+        }
+
+        private static Configuration InitNHibernate()
+        {
+// Initialize NHibernate
+            var cfg = new Configuration();
+            cfg.Configure();
+            cfg.AddAssembly(typeof (Domain.Product).Assembly);
+            return cfg;
         }
     }
 }
