@@ -65,10 +65,10 @@ namespace NHExample
         private static ISessionFactory Init()
         {
             return Fluently.Configure()
-            .Database(SQLiteConfiguration.Standard.UsingFile("firstProject.db").ShowSql())
-            .Mappings(m => m.FluentMappings.AddFromAssemblyOf<Product>())
-            .ExposeConfiguration(BuildSchema)
-            .BuildSessionFactory();
+                .Database(SQLiteConfiguration.Standard.UsingFile("firstProject.db").ShowSql())
+                .Mappings(m => m.FluentMappings.AddFromAssemblyOf<Product>())
+                .ExposeConfiguration(BuildSchema)
+                .BuildSessionFactory();
         }
 
         private static void BuildSchema(Configuration config)

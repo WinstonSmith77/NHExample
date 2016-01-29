@@ -9,5 +9,6 @@ namespace NHExample.Domain
         public virtual string Name { get; set; }
         public virtual string Category { get; set; }
         public virtual int Price { get; set; }
+        public virtual Vendor Vendor { get; set; }
     }
 }

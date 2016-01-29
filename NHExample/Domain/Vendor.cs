@@ -11,5 +11,6 @@ namespace NHExample.Domain
         public virtual int Id { get; set; }
         public virtual string Name { get; set; }
         public virtual string City { get; set; }
+        public IList<Product> Products { get; set; }
     }
 }
