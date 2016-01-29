@@ -61,7 +61,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interface\IHasName.cs" />
+    <Compile Include="Interface\IHasID.cs" />
     <Compile Include="Domain\Product.cs" />
+    <Compile Include="Domain\Vendor.cs" />
+    <Compile Include="Mappings\VendorMapping.cs" />
     <Compile Include="Mappings\ProductMapping.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
