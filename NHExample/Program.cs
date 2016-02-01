@@ -34,7 +34,7 @@ namespace NHExample
 
         static void Main()
         {
-            InitLog4Net();
+            XmlConfigurator.Configure();
 
             var vendors = new List<Vendor>();
             var sessionFactory = Init();
@@ -71,21 +71,6 @@ namespace NHExample
             Console.ReadLine();
         }
 
-        private static void InitLog4Net()
-        {
-            const string log4NetConfig = "log4net.config.xml";
-
-            var configFile = Path.Combine(".", log4NetConfig);
-            if (!File.Exists(configFile))
-            {
-                BasicConfigurator.Configure();
-                Debug.Write("LogProvider: Used BasicConfigurator!");
-            }
-            else
-            {
-                XmlConfigurator.ConfigureAndWatch(new FileInfo(configFile));
-            }
-        }
 
         private static ISessionFactory Init()
         {
