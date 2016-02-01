@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
+using log4net;
 using log4net.Config;
 using NHExample.Domain;
 using NHExample.Interface;
@@ -19,7 +20,7 @@ namespace NHExample
 {
     static class Program
     {
-        private static void DoOnSession(this ISessionFactory sessionFactory, Action<ISession> doit)
+        private static void DoOnSession(this ISessionFactory sessionFactory, Action<ISession> doit, string message)
         {
             using (var session = sessionFactory.OpenSession())
             {
@@ -30,11 +31,18 @@ namespace NHExample
                     transaction.Commit();
                 }
             }
+            if (!string.IsNullOrEmpty(message))
+            {
+                const string nhSQL = "NHibernate.SQL";
+                var logger = LogManager.GetLogger(nhSQL);
+
+                logger.Debug(message);
+            }
         }
 
         static void Main()
         {
-            XmlConfigurator.Configure();
+            log4net.Config.XmlConfigurator.Configure();
 
             var vendors = new List<Vendor>();
             var sessionFactory = Init();
@@ -46,14 +54,14 @@ namespace NHExample
                 vendors.Add(CreateVendor("Peach", "Köln"));
 
                 vendors.ForEach(item => session.Save(item));
-           //});
+            }, "Create Vendor");
 
 
-           // sessionFactory.DoOnSession(session =>
-           // {
+            sessionFactory.DoOnSession(session =>
+            {
                 var random = new Random(45);
                 Enumerable.Range(1, 10).ForEach(index => session.Save(CreateProduct(index, vendors[random.Next(vendors.Count)])));
-            });
+            }, "Create Product");
 
             DumpAll<Product>(sessionFactory);
             DumpAll<Vendor>(sessionFactory);
@@ -62,7 +70,7 @@ namespace NHExample
             {
                 var allProducts = All<Product>(session);
                 allProducts.Single(product => product.Name.EndsWith("5")).Name += "_";
-            });
+            }, "Change");
 
             DumpAll<Product>(sessionFactory);
 
@@ -95,7 +103,7 @@ namespace NHExample
             {
                 var allProducts = All<T>(session);
                 allProducts.ForEach(p => Console.WriteLine(p.Name));
-            });
+            }, "Dump " + typeof(T).Name);
             Console.WriteLine();
         }
 
