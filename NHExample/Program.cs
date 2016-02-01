@@ -33,19 +33,20 @@ namespace NHExample
 
         static void Main()
         {
+            var vendors = new List<Vendor>();
+
             var sessionFactory = Init();
 
             sessionFactory.DoOnSession(session =>
             {
-                Enumerable.Range(1, 10).ForEach(index => session.Save(CreateProduct(index)));
+                vendors.Add(CreateVendor("Apple", "Berlin"));
+                vendors.Add(CreateVendor("Banana", "HH"));
+                vendors.ForEach(item => session.Save(item));
+
+                Enumerable.Range(1, 10).ForEach(index => session.Save(CreateProduct(index, vendors[0])));
             });
 
-            sessionFactory.DoOnSession(session =>
-            {
-                session.Save(CreateVendor("Apple"));
-                session.Save(CreateVendor("Banana"));
-            });
-
+           
             DumpAll<Product>(sessionFactory);
             DumpAll<Vendor>(sessionFactory);
 
@@ -64,8 +65,9 @@ namespace NHExample
 
         private static ISessionFactory Init()
         {
+            const string dbName = "products.db";
             return Fluently.Configure()
-                .Database(SQLiteConfiguration.Standard.UsingFile("firstProject.db").ShowSql())
+                .Database(SQLiteConfiguration.Standard.UsingFile(dbName).ShowSql())
                 .Mappings(m => m.FluentMappings.AddFromAssemblyOf<Product>())
                 .ExposeConfiguration(BuildSchema)
                 .BuildSessionFactory();
@@ -102,21 +104,23 @@ namespace NHExample
             return query.List<T>().ToList();
         }
 
-        private static Product CreateProduct(int index)
+        private static Product CreateProduct(int index, Vendor vendor)
         {
             return new Product
             {
                 Name = "Some C# Book Volume " + index,
                 Price = 500,
-                Category = "Books"
+                Category = "Books",
+                Vendor = vendor
             };
         }
 
-        private static Vendor CreateVendor(string name)
+        private static Vendor CreateVendor(string name, string city)
         {
             return new Vendor
             {
-                Name = name
+                Name = name,
+                City = city
             };
         }
     }
