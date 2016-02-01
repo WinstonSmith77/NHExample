@@ -1,0 +1,27 @@
+﻿<log4net>
+
+  <root>
+    <level value="info" />
+    <appender-ref ref="RollingFileHibernateAll" />
+  </root>
+
+  
+ <appender name="RollingFileHibernateAll" type="log4net.Appender.RollingFileAppender">
+    <threshold value="info" />
+    <encoding value="utf-8" />
+    <file value="logger.log" />
+    <appendToFile value="false" />
+    <rollingStyle value="Size" />
+    <maximumFileSize value="10MB" />
+    <maxSizeRollBackups value="0" />
+    <PreserveLogFileNameExtension value="true"/>
+    <layout type="log4net.Layout.PatternLayout">
+      <conversionPattern value="%date %-5level %logger [%thread] [%ndc] - %message%newline%exception" />
+    </layout>
+    <!--<filter type="log4net.Filter.LoggerMatchFilter">
+      --><!-- allows this sub-namespace to be logged... --><!--
+      <loggerToMatch value="NHibernate" />
+    </filter>
+    <filter type="log4net.Filter.DenyAllFilter" />-->
+  </appender>
+</log4net>

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.CodeDom;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
+using log4net.Config;
 using NHExample.Domain;
 using NHExample.Interface;
 using NHibernate;
@@ -17,7 +19,6 @@ namespace NHExample
 {
     static class Program
     {
-
         private static void DoOnSession(this ISessionFactory sessionFactory, Action<ISession> doit)
         {
             using (var session = sessionFactory.OpenSession())
@@ -33,25 +34,27 @@ namespace NHExample
 
         static void Main()
         {
+            InitLog4Net();
+
+            var vendors = new List<Vendor>();
             var sessionFactory = Init();
 
             sessionFactory.DoOnSession(session =>
             {
-                var vendors = new List<Vendor>
-                {
-                    CreateVendor("Apple", "Berlin"),
-                    CreateVendor("Banana", "HH"),
-                    CreateVendor("Peach", "Köln")
-                };
-
-                var random = new Random(45);
+                vendors.Add(CreateVendor("Apple", "Berlin"));
+                vendors.Add(CreateVendor("Banana", "HH"));
+                vendors.Add(CreateVendor("Peach", "Köln"));
 
                 vendors.ForEach(item => session.Save(item));
+           //});
 
+
+           // sessionFactory.DoOnSession(session =>
+           // {
+                var random = new Random(45);
                 Enumerable.Range(1, 10).ForEach(index => session.Save(CreateProduct(index, vendors[random.Next(vendors.Count)])));
             });
 
-           
             DumpAll<Product>(sessionFactory);
             DumpAll<Vendor>(sessionFactory);
 
@@ -68,28 +71,36 @@ namespace NHExample
             Console.ReadLine();
         }
 
+        private static void InitLog4Net()
+        {
+            const string log4NetConfig = "log4net.config.xml";
+
+            var configFile = Path.Combine(".", log4NetConfig);
+            if (!File.Exists(configFile))
+            {
+                BasicConfigurator.Configure();
+                Debug.Write("LogProvider: Used BasicConfigurator!");
+            }
+            else
+            {
+                XmlConfigurator.ConfigureAndWatch(new FileInfo(configFile));
+            }
+        }
+
         private static ISessionFactory Init()
         {
             const string dbName = "products.db";
+
+            if (File.Exists(dbName))
+            {
+                File.Delete(dbName);
+            }
+
             return Fluently.Configure()
                 .Database(SQLiteConfiguration.Standard.UsingFile(dbName).ShowSql())
                 .Mappings(m => m.FluentMappings.AddFromAssemblyOf<Product>())
-                .ExposeConfiguration(BuildSchema)
+                .ExposeConfiguration(config => new SchemaExport(config).Create(false, true))
                 .BuildSessionFactory();
-        }
-
-        private static void BuildSchema(Configuration config)
-        {
-            const string DbFile = "nhibernate.db";
-            // delete the existing db on each run
-            if (File.Exists(DbFile))
-            {
-                File.Delete(DbFile);
-            }
-
-            // this NHibernate tool takes a configuration (with mapping info in)
-            // and exports a database schema from it
-            new SchemaExport(config).Create(false, true);
         }
 
         private static void DumpAll<T>(ISessionFactory sessionFactory) where T : IHasName
