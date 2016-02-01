@@ -33,17 +33,22 @@ namespace NHExample
 
         static void Main()
         {
-            var vendors = new List<Vendor>();
-
             var sessionFactory = Init();
 
             sessionFactory.DoOnSession(session =>
             {
-                vendors.Add(CreateVendor("Apple", "Berlin"));
-                vendors.Add(CreateVendor("Banana", "HH"));
+                var vendors = new List<Vendor>
+                {
+                    CreateVendor("Apple", "Berlin"),
+                    CreateVendor("Banana", "HH"),
+                    CreateVendor("Peach", "Köln")
+                };
+
+                var random = new Random(45);
+
                 vendors.ForEach(item => session.Save(item));
 
-                Enumerable.Range(1, 10).ForEach(index => session.Save(CreateProduct(index, vendors[0])));
+                Enumerable.Range(1, 10).ForEach(index => session.Save(CreateProduct(index, vendors[random.Next(vendors.Count)])));
             });
 
            
