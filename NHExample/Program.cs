@@ -42,7 +42,7 @@ namespace NHExample
 
         static void Main()
         {
-            log4net.Config.XmlConfigurator.Configure();
+            XmlConfigurator.Configure();
 
             var vendors = new List<Vendor>();
             var sessionFactory = Init();
@@ -54,14 +54,14 @@ namespace NHExample
                 vendors.Add(CreateVendor("Peach", "Köln"));
 
                 vendors.ForEach(item => session.Save(item));
-            }, "Create Vendor");
+            //}, "Create Vendor");
 
 
-            sessionFactory.DoOnSession(session =>
-            {
+            //sessionFactory.DoOnSession(session =>
+            //{
                 var random = new Random(45);
                 Enumerable.Range(1, 10).ForEach(index => session.Save(CreateProduct(index, vendors[random.Next(vendors.Count)])));
-            }, "Create Product");
+            }, "Create Product and Vendor");
 
             DumpAll<Product>(sessionFactory);
             DumpAll<Vendor>(sessionFactory);
@@ -96,13 +96,13 @@ namespace NHExample
                 .BuildSessionFactory();
         }
 
-        private static void DumpAll<T>(ISessionFactory sessionFactory) where T : IHasName
+        private static void DumpAll<T>(ISessionFactory sessionFactory)
         {
             Console.WriteLine();
             sessionFactory.DoOnSession(session =>
             {
                 var allProducts = All<T>(session);
-                allProducts.ForEach(p => Console.WriteLine(p.Name));
+                allProducts.ForEach(p => Console.WriteLine(p.ToString()));
             }, "Dump " + typeof(T).Name);
             Console.WriteLine();
         }

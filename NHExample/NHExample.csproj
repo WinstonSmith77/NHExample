@@ -82,7 +82,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Interface\IHasName.cs" />
     <Compile Include="Interface\IHasID.cs" />
     <Compile Include="Domain\Product.cs" />
     <Compile Include="Domain\Vendor.cs" />

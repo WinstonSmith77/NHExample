@@ -6,11 +6,16 @@ using NHExample.Interface;
 
 namespace NHExample.Domain
 {
-    public class Vendor : IHasID, IHasName
+    public class Vendor : IHasID
     {
         public virtual int Id { get; set; }
         public virtual string Name { get; set; }
         public virtual string City { get; set; }
         public virtual IList<Product> Products { get; set; }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }
