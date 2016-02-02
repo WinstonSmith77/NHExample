@@ -14,7 +14,7 @@ namespace NHExample.Mappings
             Id(x => x.Id);
             Map(x => x.Name);
             Map(x => x.City);
-            HasMany(x => x.Products);
+            HasMany(x => x.Products)/*.Cascade.SaveUpdate().Inverse()*/; 
         }
     }
 }

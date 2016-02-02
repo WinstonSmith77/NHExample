@@ -11,11 +11,11 @@ namespace NHExample.Mappings
     {
         public ProductMapping()
         {
-            Id(x => x.Id);
+            Id(x => x.Id).GeneratedBy.Native(builder => builder.AddParam("sequence", "SEQ_LIST_DEF"));
             Map(x => x.Category);
             Map(x => x.Name);
             Map(x => x.Price);
-            References(x => x.Vendor);
+            References(x => x.Vendor).Cascade.All();
         }
     }
 }

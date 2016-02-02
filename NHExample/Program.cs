@@ -52,7 +52,7 @@ namespace NHExample
                 vendors.Add(CreateVendor("Banana", "HH"));
                 vendors.Add(CreateVendor("Peach", "Köln"));
 
-                vendors.ForEach(item => session.Save(item));
+                //vendors.ForEach(item => session.Save(item));
             //}, "Create Vendor");
 
 
@@ -62,15 +62,13 @@ namespace NHExample
                 Enumerable.Range(1, 10).ForEach(index => session.Save(CreateProduct(index, vendors[random.Next(vendors.Count)])));
             }, "Create Product and Vendor");
 
-            DumpAll<Product>(sessionFactory);
-            DumpAll<Vendor>(sessionFactory);
-
+          
             Product specificProduct = null;
 
             sessionFactory.DoOnSession(session =>
             {
                 var allProducts = All<Product>(session);
-                specificProduct = allProducts.Single(product => product.Name.EndsWith("5"));
+                specificProduct = PickProduct(allProducts, true);
                 //session.SaveOrUpdate(specificProduct);
             //}, "Filter");
 
@@ -86,16 +84,29 @@ namespace NHExample
             {
                 var allVendors = All<Vendor>(session);
                 specificVendor = allVendors.Single(vendor => vendor.Name.EndsWith("na"));
-            
+
+            }, "Filter");
+
+            sessionFactory.DoOnSession(session =>
+            {
+
                 specificVendor.Name += "_";
-              //  session.SaveOrUpdate(specificVendor);
+              // session.SaveOrUpdate(specificVendor);
             }, "Change Vendor");
 
-            DumpAll<Product>(sessionFactory);
+           
+        }
 
-            // Don't close the application right away, so we can read
-            // the output.
-            Console.ReadLine();
+        private static Product PickProduct(List<Product> allProducts, bool clone = false)
+        {
+            var result = allProducts.Single(product => product.Name.EndsWith("5"));
+
+            if (clone)
+            {
+                result = (Product)result.Clone();
+            }
+
+            return result;
         }
 
 
