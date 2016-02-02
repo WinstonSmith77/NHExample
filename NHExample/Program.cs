@@ -9,7 +9,6 @@ using FluentNHibernate.Cfg.Db;
 using log4net;
 using log4net.Config;
 using NHExample.Domain;
-using NHExample.Interface;
 using NHibernate;
 using NHibernate.Cfg;
 using NHibernate.Linq;
@@ -66,11 +65,31 @@ namespace NHExample
             DumpAll<Product>(sessionFactory);
             DumpAll<Vendor>(sessionFactory);
 
+            Product specificProduct = null;
+
             sessionFactory.DoOnSession(session =>
             {
                 var allProducts = All<Product>(session);
-                allProducts.Single(product => product.Name.EndsWith("5")).Name += "_";
-            }, "Change");
+                specificProduct = allProducts.Single(product => product.Name.EndsWith("5"));
+                //session.SaveOrUpdate(specificProduct);
+            //}, "Filter");
+
+            //sessionFactory.DoOnSession(session =>
+            //{
+                specificProduct.Name += "_"; 
+               // session.SaveOrUpdate(specificProduct);
+            }, "Change Product");
+
+            Vendor specificVendor = null;
+
+            sessionFactory.DoOnSession(session =>
+            {
+                var allVendors = All<Vendor>(session);
+                specificVendor = allVendors.Single(vendor => vendor.Name.EndsWith("na"));
+            
+                specificVendor.Name += "_";
+              //  session.SaveOrUpdate(specificVendor);
+            }, "Change Vendor");
 
             DumpAll<Product>(sessionFactory);
 

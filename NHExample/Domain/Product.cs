@@ -1,9 +1,8 @@
 ﻿using System;
-using NHExample.Interface;
 
 namespace NHExample.Domain
 {
-    public class Product : IHasID
+    public class Product 
     {
         public virtual int Id { get; set; }
         public virtual string Name { get; set; }

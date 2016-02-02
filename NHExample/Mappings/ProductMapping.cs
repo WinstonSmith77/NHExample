@@ -15,8 +15,7 @@ namespace NHExample.Mappings
             Map(x => x.Category);
             Map(x => x.Name);
             Map(x => x.Price);
-            References(x => x.Vendor)
-                .Cascade.All();
+            References(x => x.Vendor);
         }
     }
 }
