@@ -40,7 +40,7 @@ namespace NHExample.Domain
                 Id = Id,
                 Name = Name,
                 City = City,
-                Products = Products
+                Products = new HashSet<Product>(Products)
             };
         }
     }
